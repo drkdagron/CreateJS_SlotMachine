@@ -5,11 +5,14 @@
 /// <reference path="../typings/soundjs/soundjs.d.ts" />
 /// <reference path="../typings/preloadjs/preloadjs.d.ts" />
 /// <reference path="../objects/label.ts" />
+/// <reference path="../objects/gameobject.ts" />
+/// <reference path="../objects/spritebutton.ts" />
 
 var assets: createjs.LoadQueue;
 var canvas: HTMLElement;
 var stage: createjs.Stage;
 var stats: Stats;
+var atlas: createjs.SpriteSheet;
 
 var background: createjs.Bitmap;
 
@@ -27,26 +30,51 @@ var lblJackpot;
 
 var globalOffsetX = 132.5;
 
-/*
-var manifest = [
-    { id: "BackButton", src: "../../Assets/images/BackButton.png" },
-    { id: "NextButton", src: "../../Assets/images/NextButton.png" },
-    { id: "StartButton", src: "../../Assets/images/StartButton.png" },
-    { id: "background", src: "../../Assets/images/background.png" },
-    { id: "yay", src: "../../Assets/audio/yay.ogg" }
-];
-*/
+//spritesheet info
+var data = {
 
-function preload(): void {
-    console.log("Preload");
-    assets = new createjs.LoadQueue();
-    assets.installPlugin(createjs.Sound);
-    assets.on("complete", init, this);
-    //assets.loadManifest(manifest);
-}
+    "images": [
+        "../../assets/graphics/atlas.png"
+    ],
+
+    "frames": [
+        [2, 2, 253, 4, 0, 0, 0],
+        [2, 8, 69, 69, 0, 0, 0],
+        [2, 79, 69, 69, 0, 0, 0],
+        [2, 150, 69, 69, 0, 0, 0],
+        [73, 8, 69, 69, 0, 0, 0],
+        [144, 8, 69, 69, 0, 0, 0],
+        [215, 8, 60, 60, 0, 0, 0],
+        [215, 70, 60, 60, 0, 0, 0],
+        [73, 79, 69, 69, 0, 0, 0],
+        [144, 79, 69, 69, 0, 0, 0],
+        [215, 132, 60, 60, 0, 0, 0],
+        [73, 194, 69, 69, 0, 0, 0],
+        [144, 150, 60, 60, 0, 0, 0],
+        [144, 212, 60, 60, 0, 0, 0],
+        [206, 194, 60, 60, 0, 0, 0]
+    ],
+
+    "animations": {
+        "bet_line": [0],
+        "snake": [1],
+        "monkey": [2],
+        "giraffe": [3],
+        "blank": [4],
+        "pig": [5],
+        "bet100Button": [6],
+        "bet10Button": [7],
+        "elephant": [8],
+        "parrot": [9],
+        "bet1Button": [10],
+        "panda": [11],
+        "betMaxButton": [12],
+        "genericButton": [13],
+        "spinButton": [14]
+    },
+};
 
 function init(): void {
-    console.log("init");
     canvas = document.getElementById("canvas"); // reference to canvas element
     stage = new createjs.Stage(canvas); // passing canvas to stage
     stage.enableMouseOver(20); // enable mouse events
@@ -54,10 +82,29 @@ function init(): void {
     createjs.Ticker.on("tick", gameLoop); // update gameLoop every frame
     setupStats(); // sets up our stats counting
 
+    atlas = new createjs.SpriteSheet(data);
+
     background = new createjs.Bitmap("../../assets/graphics/background.png");
     background.setBounds(0, 0, 375, 480);
     background.x = globalOffsetX;
     stage.addChild(background);
+
+
+    var bet1: objects.SpriteButton = new objects.SpriteButton("bet1Button", globalOffsetX + 23, 386, "bet1");
+    bet1.addEventListener("click", guiClicked, false);
+    stage.addChild(bet1);
+    var bet10: objects.SpriteButton = new objects.SpriteButton("bet10Button", globalOffsetX + 88, 386, "bet10");
+    bet10.addEventListener("click", guiClicked, false);
+    stage.addChild(bet10);
+    var bet100: objects.SpriteButton = new objects.SpriteButton("bet100Button", globalOffsetX + 153, 386, "bet100");
+    bet100.addEventListener("click", guiClicked, false);
+    stage.addChild(bet100);
+    var betall: objects.SpriteButton = new objects.SpriteButton("betMaxButton", globalOffsetX + 218, 386, "betmax");
+    betall.addEventListener("click", guiClicked, false);
+    stage.addChild(betall);
+    var spin: objects.SpriteButton = new objects.SpriteButton("spinButton", globalOffsetX + 289, 386, "spin");
+    spin.addEventListener("click", guiClicked, false);
+    stage.addChild(spin);
 
     lblMoney = new objects.Label(currentMoney.toString(), "24px Consolas", "#00ff00", globalOffsetX + 46, 335, false);
     stage.addChild(lblMoney);
@@ -74,15 +121,18 @@ function init(): void {
     main();
 }
 
+function guiClicked(event: createjs.MouseEvent) {
+
+    console.log(event.currentTarget.name);
+}
+
 function main(): void {
 
-    console.log("main");
     
 }
 
 // Main Game Loop
 function gameLoop(event: createjs.Event): void {
-    console.log("update");
     stats.begin(); // start counting
     
     stage.update(); // redraw/refresh stage every frame
