@@ -22,6 +22,15 @@ var lblWinnings;
 var currentJackpot = 5000;
 var lblJackpot;
 var globalOffsetX = 132.5;
+var tile1ImageRow;
+var tile1Current;
+var row1Roll;
+var tile2ImageRow;
+var tile2Current;
+var row2Roll;
+var tile3ImageRow;
+var tile3Current;
+var row3Roll;
 //spritesheet info
 var data = {
     "images": [
@@ -62,6 +71,18 @@ var data = {
         "spinButton": [14]
     },
 };
+function createImageArray() {
+    var array;
+    array = new Array();
+    array.push(new objects.GameObject("blank", 0, 0));
+    array.push(new objects.GameObject("giraffe", 0, -69));
+    array.push(new objects.GameObject("elephant", 0, 69));
+    array.push(new objects.GameObject("monkey", 0, 138));
+    array.push(new objects.GameObject("snake", 0, -138));
+    array.push(new objects.GameObject("panda", 0, 207));
+    array.push(new objects.GameObject("parrot", 0, -207));
+    return array;
+}
 function init() {
     canvas = document.getElementById("canvas"); // reference to canvas element
     stage = new createjs.Stage(canvas); // passing canvas to stage
@@ -70,6 +91,26 @@ function init() {
     createjs.Ticker.on("tick", gameLoop); // update gameLoop every frame
     setupStats(); // sets up our stats counting
     atlas = new createjs.SpriteSheet(data);
+    tile1ImageRow = createImageArray();
+    tile2ImageRow = createImageArray();
+    tile3ImageRow = createImageArray();
+    var tile1Container = new createjs.Container();
+    tile1Container.x = globalOffsetX + 74;
+    tile1Container.y = 192;
+    var tile2Container = new createjs.Container();
+    tile2Container.x = globalOffsetX + 152;
+    tile2Container.y = 192;
+    var tile3Container = new createjs.Container();
+    tile3Container.x = globalOffsetX + 230;
+    tile3Container.y = 192;
+    for (var i = 0; i < 7; i++) {
+        tile1Container.addChild(tile1ImageRow[i]);
+        tile2Container.addChild(tile2ImageRow[i]);
+        tile3Container.addChild(tile3ImageRow[i]);
+    }
+    stage.addChild(tile1Container);
+    stage.addChild(tile2Container);
+    stage.addChild(tile3Container);
     background = new createjs.Bitmap("../../assets/graphics/background.png");
     background.setBounds(0, 0, 375, 480);
     background.x = globalOffsetX;
@@ -89,6 +130,8 @@ function init() {
     var spin = new objects.SpriteButton("spinButton", globalOffsetX + 289, 386, "spin");
     spin.addEventListener("click", guiClicked, false);
     stage.addChild(spin);
+    var bar = new objects.GameObject("bet_line", globalOffsetX + 61, 225);
+    stage.addChild(bar);
     lblMoney = new objects.Label(currentMoney.toString(), "24px Consolas", "#00ff00", globalOffsetX + 46, 335, false);
     stage.addChild(lblMoney);
     lblBet = new objects.Label(currentBet.toString(), "24px Consolas", "#00ff00", globalOffsetX + 162, 335, false);
@@ -99,14 +142,47 @@ function init() {
     stage.addChild(lblJackpot);
     main();
 }
+function roll() {
+    row1Roll = true;
+    row2Roll = true;
+    row3Roll = true;
+}
 function guiClicked(event) {
+    switch (event.currentTarget.name) {
+        case "spin":
+            {
+                roll();
+                rollImageRows();
+                break;
+            }
+    }
     console.log(event.currentTarget.name);
 }
 function main() {
 }
+function rollImageRows() {
+    for (var i = 0; i < 7; i++) {
+        if (row1Roll) {
+            tile1ImageRow[i].y += 5;
+            if (tile1ImageRow[i].y > 241)
+                tile1ImageRow[i].y = -241;
+        }
+        if (row2Roll) {
+            tile2ImageRow[i].y += 5;
+            if (tile2ImageRow[i].y > 241)
+                tile2ImageRow[i].y = -241;
+        }
+        if (row3Roll) {
+            tile3ImageRow[i].y += 5;
+            if (tile3ImageRow[i].y > 241)
+                tile3ImageRow[i].y = -241;
+        }
+    }
+}
 // Main Game Loop
 function gameLoop(event) {
     stats.begin(); // start counting
+    rollImageRows();
     stage.update(); // redraw/refresh stage every frame
     stats.end(); // stop counting
 }
