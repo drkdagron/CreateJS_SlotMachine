@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="scripts\core\game.ts" />
+    <TypeScriptCompile Include="scripts\objects\Label.ts" />
     <TypeScriptCompile Include="scripts\typings\createjs-lib\createjs-lib.d.ts" />
     <TypeScriptCompile Include="scripts\typings\easeljs\easeljs.d.ts" />
     <TypeScriptCompile Include="scripts\typings\preloadjs\preloadjs.d.ts" />

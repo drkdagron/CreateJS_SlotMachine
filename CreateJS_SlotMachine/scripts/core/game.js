@@ -4,11 +4,20 @@
 /// <reference path="../typings/tweenjs/tweenjs.d.ts" />
 /// <reference path="../typings/soundjs/soundjs.d.ts" />
 /// <reference path="../typings/preloadjs/preloadjs.d.ts" />
+/// <reference path="../objects/label.ts" />
 var assets;
 var canvas;
 var stage;
 var stats;
 var background;
+var currentMoney = 1000;
+var lblMoney;
+var currentBet = 100;
+var lblBet;
+var lastWinning;
+var lblWinnings;
+var currentJackpot = 5000;
+var lblJackpot;
 var globalOffsetX = 132.5;
 /*
 var manifest = [
@@ -34,14 +43,22 @@ function init() {
     createjs.Ticker.setFPS(60); // set frame rate to 60 fps
     createjs.Ticker.on("tick", gameLoop); // update gameLoop every frame
     setupStats(); // sets up our stats counting
-    main();
-}
-function main() {
-    console.log("main");
     background = new createjs.Bitmap("../../assets/graphics/background.png");
     background.setBounds(0, 0, 375, 480);
     background.x = globalOffsetX;
     stage.addChild(background);
+    lblMoney = new objects.Label(currentMoney.toString(), "24px Consolas", "#00ff00", globalOffsetX + 46, 335, false);
+    stage.addChild(lblMoney);
+    lblBet = new objects.Label(currentBet.toString(), "24px Consolas", "#00ff00", globalOffsetX + 162, 335, false);
+    stage.addChild(lblBet);
+    lblWinnings = new objects.Label("", "24px Consolas", "#00ff00", globalOffsetX + 258, 335, false);
+    stage.addChild(lblWinnings);
+    lblJackpot = new objects.Label(currentJackpot.toString(), "24px Consolas", "#00ff00", globalOffsetX + 142, 53, false);
+    stage.addChild(lblJackpot);
+    main();
+}
+function main() {
+    console.log("main");
 }
 // Main Game Loop
 function gameLoop(event) {
