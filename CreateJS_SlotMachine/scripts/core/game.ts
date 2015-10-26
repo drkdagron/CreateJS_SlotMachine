@@ -30,16 +30,17 @@ var lblJackpot;
 
 var globalOffsetX = 132.5;
 
+//reel images and gameobjects
 var tile1ImageRow: objects.GameObject[];
-var tile1Current: number;
-var row1Roll: boolean;
-
 var tile2ImageRow: objects.GameObject[];
-var tile2Current: number;
-var row2Roll: boolean;
-
 var tile3ImageRow: objects.GameObject[];
-var tile3Current: number;
+
+//winning set
+var winningRow: number[];
+
+//rolling logic
+var row1Roll: boolean;
+var row2Roll: boolean;
 var row3Roll: boolean;
 
 //spritesheet info
@@ -90,12 +91,13 @@ function createImageArray(): objects.GameObject[] {
     var array: objects.GameObject[];
     array = new Array<objects.GameObject>();
     array.push(new objects.GameObject("blank", 0, 0));
-    array.push(new objects.GameObject("giraffe", 0, -69));
-    array.push(new objects.GameObject("elephant", 0, 69));
-    array.push(new objects.GameObject("monkey", 0, 138));
-    array.push(new objects.GameObject("snake", 0, -138));
-    array.push(new objects.GameObject("panda", 0, 207));
-    array.push(new objects.GameObject("parrot", 0, -207));
+    array.push(new objects.GameObject("snake", 0, 69));
+    array.push(new objects.GameObject("parrot", 0, 138));
+    array.push(new objects.GameObject("monkey", 0, 207));
+    array.push(new objects.GameObject("pig", 0, 276));
+    array.push(new objects.GameObject("panda", 0, 345));
+    array.push(new objects.GameObject("giraffe", 0, 414));
+    array.push(new objects.GameObject("elephant", 0, -69));
 
     return array;
 }
@@ -126,7 +128,7 @@ function init(): void {
     tile3Container.x = globalOffsetX + 230;
     tile3Container.y = 192;
 
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 8; i++) {
         tile1Container.addChild(tile1ImageRow[i]);
         tile2Container.addChild(tile2ImageRow[i]);
         tile3Container.addChild(tile3ImageRow[i]);
@@ -179,6 +181,48 @@ function roll() {
     row1Roll = true;
     row2Roll = true;
     row3Roll = true;
+
+    winningRow = setPicks();
+}
+
+function _checkRange(value: number, lowerBounds: number, upperBounds: number): number {
+    return (value >= lowerBounds && value <= upperBounds) ? value : -1;
+}
+
+function setPicks(): number[]   //this function will return the winning set which will appear in the middle
+{
+    var tmp: number[] = new Array<number>(3);
+    for (var reel = 0; reel < 3; reel++) {
+        tmp[reel] = Math.floor((Math.random() * 65) + 1);
+        switch (tmp[reel]) {
+            case this._checkRange(tmp[reel], 1, 27):  // 41.5% probability
+                tmp[reel] = 0; //blank
+                break;
+            case this._checkRange(tmp[reel], 28, 37): // 15.4% probability
+                tmp[reel] = 1; //snake
+                break;
+            case this._checkRange(tmp[reel], 38, 46): // 13.8% probability
+                tmp[reel] = 2; //parrot
+                break;
+            case this._checkRange(tmp[reel], 47, 54): // 12.3% probability
+                tmp[reel] = 3; //monkey
+                break;
+            case this._checkRange(tmp[reel], 55, 59): //  7.7% probability
+                tmp[reel] = 4; //pig
+                break;
+            case this._checkRange(tmp[reel], 60, 62): //  4.6% probability
+                tmp[reel] = 5; //panda
+                break;
+            case this._checkRange(tmp[reel], 63, 64): //  3.1% probability
+                tmp[reel] = 6; //giraffe
+                break;
+            case this._checkRange(tmp[reel], 65, 65): //  1.5% probability
+                tmp[reel] = 7; //elephant
+                break;
+        }
+    }    
+    console.log("winning set: " + tmp[0] + ", " + tmp[1] + ", " + tmp[2]);
+    return tmp;
 }
 
 function guiClicked(event: createjs.MouseEvent) {
@@ -200,22 +244,54 @@ function main(): void {
 }
 
 function rollImageRows() {
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 8; i++) {
         if (row1Roll) {
             tile1ImageRow[i].y += 5;
-            if (tile1ImageRow[i].y > 241)
-                tile1ImageRow[i].y = -241;
+            if (tile1ImageRow[i].y >= 448.5)
+                tile1ImageRow[i].y = -103.5;
+            if (tile1ImageRow[winningRow[0]].y < 2 && tile1ImageRow[winningRow[0]].y > -2)
+            {
+                row1Roll = false;
+                fixImages(tile1ImageRow, winningRow[0]);
+            }
         }
         if (row2Roll) {
             tile2ImageRow[i].y += 5;
-            if (tile2ImageRow[i].y > 241)
-                tile2ImageRow[i].y = -241;
+            if (tile2ImageRow[i].y >= 448.5)
+                tile2ImageRow[i].y = -103.5;
+            if (tile2ImageRow[winningRow[1]].y < 2 && tile2ImageRow[winningRow[1]].y > -2)
+            {
+                row2Roll = false;
+                fixImages(tile2ImageRow, winningRow[1]);
+            }
         }
         if (row3Roll) {
             tile3ImageRow[i].y += 5;
-            if (tile3ImageRow[i].y > 241)
-                tile3ImageRow[i].y = -241;
+            if (tile3ImageRow[i].y >= 448.5)
+                tile3ImageRow[i].y = -103.5;
+            if (tile3ImageRow[winningRow[2]].y < 2 && tile3ImageRow[winningRow[2]].y > -2)
+            {
+                row3Roll = false;
+                fixImages(tile3ImageRow, winningRow[2]);
+            }
         }
+    }
+}
+
+function fixImages(obj: objects.GameObject[], current: number) {
+    //set current to 0
+    obj[current].y = 0;
+    var last: number = current - 1;
+    if (last < 0)
+        last = 7;
+    console.log(last);
+    obj[last].y = -69;
+    for (var l = 0; l < 6; l++)
+    {
+        var num: number = l + current + 1;
+        num %= 8;
+        console.log(num);
+        obj[num].y = 69 + (l * 69);
     }
 }
 

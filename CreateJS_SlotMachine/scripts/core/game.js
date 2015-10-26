@@ -22,14 +22,15 @@ var lblWinnings;
 var currentJackpot = 5000;
 var lblJackpot;
 var globalOffsetX = 132.5;
+//reel images and gameobjects
 var tile1ImageRow;
-var tile1Current;
-var row1Roll;
 var tile2ImageRow;
-var tile2Current;
-var row2Roll;
 var tile3ImageRow;
-var tile3Current;
+//winning set
+var winningRow;
+//rolling logic
+var row1Roll;
+var row2Roll;
 var row3Roll;
 //spritesheet info
 var data = {
@@ -75,12 +76,13 @@ function createImageArray() {
     var array;
     array = new Array();
     array.push(new objects.GameObject("blank", 0, 0));
-    array.push(new objects.GameObject("giraffe", 0, -69));
-    array.push(new objects.GameObject("elephant", 0, 69));
-    array.push(new objects.GameObject("monkey", 0, 138));
-    array.push(new objects.GameObject("snake", 0, -138));
-    array.push(new objects.GameObject("panda", 0, 207));
-    array.push(new objects.GameObject("parrot", 0, -207));
+    array.push(new objects.GameObject("snake", 0, 69));
+    array.push(new objects.GameObject("parrot", 0, 138));
+    array.push(new objects.GameObject("monkey", 0, 207));
+    array.push(new objects.GameObject("pig", 0, 276));
+    array.push(new objects.GameObject("panda", 0, 345));
+    array.push(new objects.GameObject("giraffe", 0, 414));
+    array.push(new objects.GameObject("elephant", 0, -69));
     return array;
 }
 function init() {
@@ -103,7 +105,7 @@ function init() {
     var tile3Container = new createjs.Container();
     tile3Container.x = globalOffsetX + 230;
     tile3Container.y = 192;
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 8; i++) {
         tile1Container.addChild(tile1ImageRow[i]);
         tile2Container.addChild(tile2ImageRow[i]);
         tile3Container.addChild(tile3ImageRow[i]);
@@ -146,6 +148,44 @@ function roll() {
     row1Roll = true;
     row2Roll = true;
     row3Roll = true;
+    winningRow = setPicks();
+}
+function _checkRange(value, lowerBounds, upperBounds) {
+    return (value >= lowerBounds && value <= upperBounds) ? value : -1;
+}
+function setPicks() {
+    var tmp = new Array(3);
+    for (var reel = 0; reel < 3; reel++) {
+        tmp[reel] = Math.floor((Math.random() * 65) + 1);
+        switch (tmp[reel]) {
+            case this._checkRange(tmp[reel], 1, 27):
+                tmp[reel] = 0; //blank
+                break;
+            case this._checkRange(tmp[reel], 28, 37):
+                tmp[reel] = 1; //snake
+                break;
+            case this._checkRange(tmp[reel], 38, 46):
+                tmp[reel] = 2; //parrot
+                break;
+            case this._checkRange(tmp[reel], 47, 54):
+                tmp[reel] = 3; //monkey
+                break;
+            case this._checkRange(tmp[reel], 55, 59):
+                tmp[reel] = 4; //pig
+                break;
+            case this._checkRange(tmp[reel], 60, 62):
+                tmp[reel] = 5; //panda
+                break;
+            case this._checkRange(tmp[reel], 63, 64):
+                tmp[reel] = 6; //giraffe
+                break;
+            case this._checkRange(tmp[reel], 65, 65):
+                tmp[reel] = 7; //elephant
+                break;
+        }
+    }
+    console.log("winning set: " + tmp[0] + ", " + tmp[1] + ", " + tmp[2]);
+    return tmp;
 }
 function guiClicked(event) {
     switch (event.currentTarget.name) {
@@ -161,22 +201,49 @@ function guiClicked(event) {
 function main() {
 }
 function rollImageRows() {
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 8; i++) {
         if (row1Roll) {
             tile1ImageRow[i].y += 5;
-            if (tile1ImageRow[i].y > 241)
-                tile1ImageRow[i].y = -241;
+            if (tile1ImageRow[i].y >= 448.5)
+                tile1ImageRow[i].y = -103.5;
+            if (tile1ImageRow[winningRow[0]].y < 2 && tile1ImageRow[winningRow[0]].y > -2) {
+                row1Roll = false;
+                fixImages(tile1ImageRow, winningRow[0]);
+            }
         }
         if (row2Roll) {
             tile2ImageRow[i].y += 5;
-            if (tile2ImageRow[i].y > 241)
-                tile2ImageRow[i].y = -241;
+            if (tile2ImageRow[i].y >= 448.5)
+                tile2ImageRow[i].y = -103.5;
+            if (tile2ImageRow[winningRow[1]].y < 2 && tile2ImageRow[winningRow[1]].y > -2) {
+                row2Roll = false;
+                fixImages(tile2ImageRow, winningRow[1]);
+            }
         }
         if (row3Roll) {
             tile3ImageRow[i].y += 5;
-            if (tile3ImageRow[i].y > 241)
-                tile3ImageRow[i].y = -241;
+            if (tile3ImageRow[i].y >= 448.5)
+                tile3ImageRow[i].y = -103.5;
+            if (tile3ImageRow[winningRow[2]].y < 2 && tile3ImageRow[winningRow[2]].y > -2) {
+                row3Roll = false;
+                fixImages(tile3ImageRow, winningRow[2]);
+            }
         }
+    }
+}
+function fixImages(obj, current) {
+    //set current to 0
+    obj[current].y = 0;
+    var last = current - 1;
+    if (last < 0)
+        last = 7;
+    console.log(last);
+    obj[last].y = -69;
+    for (var l = 0; l < 6; l++) {
+        var num = l + current + 1;
+        num %= 8;
+        console.log(num);
+        obj[num].y = 69 + (l * 69);
     }
 }
 // Main Game Loop
