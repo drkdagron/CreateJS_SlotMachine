@@ -15,12 +15,14 @@ var atlas;
 var background;
 var currentMoney = 1000;
 var lblMoney;
-var currentBet = 100;
+var currentBet = 0;
 var lblBet;
 var lastWinning;
 var lblWinnings;
 var currentJackpot = 5000;
 var lblJackpot;
+var resetButton;
+var resetLabel;
 var globalOffsetX = 132.5;
 //reel images and gameobjects
 var tile1ImageRow;
@@ -32,6 +34,12 @@ var winningRow;
 var row1Roll;
 var row2Roll;
 var row3Roll;
+var checkWinning = false;
+//audio
+var manifest = [
+    { id: "winner", src: "../../assets/sounds/winner.wav" },
+    { id: "click", src: "../../assets/sounds/click3.ogg" },
+];
 //spritesheet info
 var data = {
     "images": [
@@ -85,6 +93,39 @@ function createImageArray() {
     array.push(new objects.GameObject("elephant", 0, -69));
     return array;
 }
+function resetRows() {
+    tile1ImageRow[0].y = 0;
+    tile1ImageRow[1].y = 69;
+    tile1ImageRow[2].y = 138;
+    tile1ImageRow[3].y = 207;
+    tile1ImageRow[4].y = 276;
+    tile1ImageRow[5].y = 345;
+    tile1ImageRow[6].y = 414;
+    tile1ImageRow[7].y = -69;
+    tile2ImageRow[0].y = 0;
+    tile2ImageRow[1].y = 69;
+    tile2ImageRow[2].y = 138;
+    tile2ImageRow[3].y = 207;
+    tile2ImageRow[4].y = 276;
+    tile2ImageRow[5].y = 345;
+    tile2ImageRow[6].y = 414;
+    tile2ImageRow[7].y = -69;
+    tile3ImageRow[0].y = 0;
+    tile3ImageRow[1].y = 69;
+    tile3ImageRow[2].y = 138;
+    tile3ImageRow[3].y = 207;
+    tile3ImageRow[4].y = 276;
+    tile3ImageRow[5].y = 345;
+    tile3ImageRow[6].y = 414;
+    tile3ImageRow[7].y = -69;
+}
+function preload() {
+    assets = new createjs.LoadQueue();
+    assets.installPlugin(createjs.Sound);
+    assets.on("complete", init, this);
+    assets.loadManifest(manifest);
+    atlas = new createjs.SpriteSheet(data);
+}
 function init() {
     canvas = document.getElementById("canvas"); // reference to canvas element
     stage = new createjs.Stage(canvas); // passing canvas to stage
@@ -92,7 +133,6 @@ function init() {
     createjs.Ticker.setFPS(60); // set frame rate to 60 fps
     createjs.Ticker.on("tick", gameLoop); // update gameLoop every frame
     setupStats(); // sets up our stats counting
-    atlas = new createjs.SpriteSheet(data);
     tile1ImageRow = createImageArray();
     tile2ImageRow = createImageArray();
     tile3ImageRow = createImageArray();
@@ -117,6 +157,11 @@ function init() {
     background.setBounds(0, 0, 375, 480);
     background.x = globalOffsetX;
     stage.addChild(background);
+    resetButton = new objects.SpriteButton("genericButton", 10, 10, "reset");
+    resetButton.addEventListener("click", guiClicked, false);
+    stage.addChild(resetButton);
+    resetLabel = new objects.Label("Reset", "18px Consolas", "#FFF", 40, 40, true);
+    stage.addChild(resetLabel);
     var bet1 = new objects.SpriteButton("bet1Button", globalOffsetX + 23, 386, "bet1");
     bet1.addEventListener("click", guiClicked, false);
     stage.addChild(bet1);
@@ -134,21 +179,25 @@ function init() {
     stage.addChild(spin);
     var bar = new objects.GameObject("bet_line", globalOffsetX + 61, 225);
     stage.addChild(bar);
+    currentMoney = 1000;
     lblMoney = new objects.Label(currentMoney.toString(), "24px Consolas", "#00ff00", globalOffsetX + 46, 335, false);
     stage.addChild(lblMoney);
+    currentBet = 0;
     lblBet = new objects.Label(currentBet.toString(), "24px Consolas", "#00ff00", globalOffsetX + 162, 335, false);
     stage.addChild(lblBet);
-    lblWinnings = new objects.Label("", "24px Consolas", "#00ff00", globalOffsetX + 258, 335, false);
+    lblWinnings = new objects.Label("", "24px Consolas", "#00ff00", globalOffsetX + 235, 335, false);
     stage.addChild(lblWinnings);
+    currentJackpot = 5000;
     lblJackpot = new objects.Label(currentJackpot.toString(), "24px Consolas", "#00ff00", globalOffsetX + 142, 53, false);
     stage.addChild(lblJackpot);
-    main();
 }
 function roll() {
     row1Roll = true;
     row2Roll = true;
     row3Roll = true;
+    checkWinning = true;
     winningRow = setPicks();
+    lblWinnings.text = "";
 }
 function _checkRange(value, lowerBounds, upperBounds) {
     return (value >= lowerBounds && value <= upperBounds) ? value : -1;
@@ -188,17 +237,144 @@ function setPicks() {
     return tmp;
 }
 function guiClicked(event) {
-    switch (event.currentTarget.name) {
-        case "spin":
-            {
-                roll();
-                rollImageRows();
-                break;
-            }
+    if (event.currentTarget.name == "reset") {
+        currentMoney = 1000;
+        currentBet = 0;
+        lastWinning = 0;
+        currentJackpot = 5000;
+        lblBet.text = currentBet.toString();
+        lblJackpot.text = currentJackpot.toString();
+        lblMoney.text = currentMoney.toString();
+        lblWinnings.text = lastWinning.toString();
+        row1Roll = false;
+        row2Roll = false;
+        row3Roll = false;
+        resetRows();
+        return;
     }
-    console.log(event.currentTarget.name);
+    if (checkWinning == false) {
+        switch (event.currentTarget.name) {
+            case "bet1":
+                {
+                    if (moneyCheck(1)) {
+                        currentMoney -= 1;
+                        currentBet += 1;
+                    }
+                    break;
+                }
+            case "bet10":
+                {
+                    if (moneyCheck(10)) {
+                        currentMoney -= 10;
+                        currentBet += 10;
+                    }
+                    break;
+                }
+            case "bet100":
+                {
+                    if (moneyCheck(100)) {
+                        currentMoney -= 100;
+                        currentBet += 100;
+                    }
+                    break;
+                }
+            case "betmax":
+                {
+                    currentBet += currentMoney;
+                    currentMoney = 0;
+                    break;
+                }
+            case "spin":
+                {
+                    if (currentBet > 0) {
+                        roll();
+                        rollImageRows();
+                    }
+                    break;
+                }
+        }
+    }
+    lblMoney.text = currentMoney.toString();
+    lblBet.text = currentBet.toString();
+    createjs.Sound.play("click");
 }
-function main() {
+function moneyCheck(n) {
+    var tmp = currentMoney;
+    if (tmp - n < 0)
+        return false;
+    return true;
+}
+function checkWinnings(winner) {
+    var count = 0;
+    for (var win = 0; win < winningRow.length; win++) {
+        if (winningRow[win] == winner)
+            count++;
+    }
+    console.log("Counted: " + count.toString() + ", for id: " + winner.toString());
+    return count;
+}
+function determineWinnings() {
+    if (checkWinnings(0) == 0) {
+        if (checkWinnings(1) == 3) {
+            lastWinning = currentBet * 10;
+        }
+        else if (checkWinnings(2) == 3) {
+            lastWinning = currentBet * 20;
+        }
+        else if (checkWinnings(3) == 3) {
+            lastWinning = currentBet * 30;
+        }
+        else if (checkWinnings(4) == 3) {
+            lastWinning = currentBet * 40;
+        }
+        else if (checkWinnings(5) == 3) {
+            lastWinning = currentBet * 50;
+        }
+        else if (checkWinnings(6) == 3) {
+            lastWinning = currentBet * 75;
+        }
+        else if (checkWinnings(7) == 3) {
+            lastWinning = currentBet * 100;
+        }
+        else if (checkWinnings(1) == 2) {
+            lastWinning = currentBet * 2;
+        }
+        else if (checkWinnings(2) == 2) {
+            lastWinning = currentBet * 2;
+        }
+        else if (checkWinnings(3) == 2) {
+            lastWinning = currentBet * 3;
+        }
+        else if (checkWinnings(4) == 2) {
+            lastWinning = currentBet * 4;
+        }
+        else if (checkWinnings(5) == 2) {
+            lastWinning = currentBet * 5;
+        }
+        else if (checkWinnings(6) == 2) {
+            lastWinning = currentBet * 10;
+        }
+        else if (checkWinnings(7) == 2) {
+            lastWinning = currentBet * 20;
+        }
+        else if (checkWinnings(7) == 1) {
+            lastWinning = currentBet * 5;
+        }
+        else {
+            lastWinning = currentBet * 1;
+        }
+        lblWinnings.text = lastWinning.toString();
+        currentMoney += lastWinning;
+        lblMoney.text = currentMoney.toString();
+        createjs.Sound.play("winner");
+    }
+    else {
+        lblWinnings.text = "0";
+    }
+    if (currentMoney == 0) {
+        lblMoney.text = "Game!";
+        lblWinnings.text = "Over!";
+    }
 }
 function rollImageRows() {
     for (var i = 0; i < 8; i++) {
@@ -230,6 +406,12 @@ function rollImageRows() {
             }
         }
     }
+    if (checkWinning && row1Roll == false && row2Roll == false && row3Roll == false) {
+        determineWinnings();
+        checkWinning = false;
+        currentBet = 0;
+        lblBet.text = currentBet.toString();
+    }
 }
 function fixImages(obj, current) {
     //set current to 0
@@ -237,12 +419,10 @@ function fixImages(obj, current) {
     var last = current - 1;
     if (last < 0)
         last = 7;
-    console.log(last);
     obj[last].y = -69;
     for (var l = 0; l < 6; l++) {
         var num = l + current + 1;
         num %= 8;
-        console.log(num);
         obj[num].y = 69 + (l * 69);
     }
 }

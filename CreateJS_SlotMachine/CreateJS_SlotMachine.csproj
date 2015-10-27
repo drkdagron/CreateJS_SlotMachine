@@ -24,6 +24,8 @@
   <ItemGroup>
     <Content Include="assets\graphics\atlas.png" />
     <Content Include="assets\graphics\background.png" />
+    <Content Include="assets\sounds\click3.ogg" />
+    <Content Include="assets\sounds\winner.wav" />
     <Content Include="index.html" />
     <Content Include="scripts\css\game.css" />
     <Content Include="scripts\css\reset.css" />
