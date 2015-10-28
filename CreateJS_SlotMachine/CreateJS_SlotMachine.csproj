@@ -37,10 +37,14 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="scripts\config\config.ts" />
     <TypeScriptCompile Include="scripts\core\game.ts" />
     <TypeScriptCompile Include="scripts\objects\GameObject.ts" />
     <TypeScriptCompile Include="scripts\objects\Label.ts" />
+    <TypeScriptCompile Include="scripts\objects\Scene.ts" />
     <TypeScriptCompile Include="scripts\objects\SpriteButton.ts" />
+    <TypeScriptCompile Include="scripts\states\Play.ts" />
+    <TypeScriptCompile Include="scripts\states\Menu.ts" />
     <TypeScriptCompile Include="scripts\typings\createjs-lib\createjs-lib.d.ts" />
     <TypeScriptCompile Include="scripts\typings\easeljs\easeljs.d.ts" />
     <TypeScriptCompile Include="scripts\typings\preloadjs\preloadjs.d.ts" />
