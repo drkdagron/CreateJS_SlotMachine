@@ -1,24 +1,20 @@
-///////////////////////////////////////////////////////////
-//      game.ts
-//      Author: Stephen McKillop
-//      Last Modifed by: Stephen McKillop
-//      Date Last Modifed: Oct 28, 2015
-//      Description: manages menu logic
-//      Revision History:
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-///////////////////////////////////////////////////////////
+/*/////////////////////////////////////////////////
+      game.ts
+      Author: Stephen McKillop
+      Last Modifed by: Stephen McKillop
+      Date Last Modifed: Oct 28, 2015
+      Description: manages menu logic
+      Revision History:
+      Oct23 - Initial Commit
+      Oct23 - Background Added
+      Oct24 - Added Label class and text
+      Oct24 - Added Button class and buttons
+      Oct24 - Add images rolling
+      Oct26 - Finalized image movement
+      Oct26 - Added sounds and reset
+      Oct28 - Added states and comments
+                                                  
+/////////////////////////////////////////////////*/
 /// <reference path="../config/config.ts" />
 /// <reference path="../typings/stats/stats.d.ts" />
 /// <reference path="../typings/createjs-lib/createjs-lib.d.ts" />

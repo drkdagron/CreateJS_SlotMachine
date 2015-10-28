@@ -39,8 +39,17 @@
             super();
         }
 
+        /* 
+            Gui build order:
+                Rollers
+                Background
+                Labels
+                Buttons
+                Bar
+        */
         public start(): void {
 
+            //ROLLERS
             this.tile1ImageRow = this.createImageArray();
             this.tile2ImageRow = this.createImageArray();
             this.tile3ImageRow = this.createImageArray();
@@ -66,11 +75,13 @@
             stage.addChild(tile2Container);
             stage.addChild(tile3Container);
 
+            //BACKGROUND
             this.background = new createjs.Bitmap("../../assets/graphics/background.png");
             this.background.setBounds(0, 0, 375, 480);
             this.background.x = this.globalOffsetX;
             stage.addChild(this.background);
 
+            //LABELS
             this.currentMoney = 1000;
             this.lblMoney = new objects.Label(this.currentMoney.toString(), "24px Consolas", "#00ff00", this.globalOffsetX + 46, 335, false);
             stage.addChild(this.lblMoney);
@@ -94,6 +105,7 @@
             this.quitLabel = new objects.Label("Quit", "18px Consolas", "#FFF", 40, 120, true);
             stage.addChild(this.quitLabel);
 
+            //BUTTONS
             var bet1: objects.SpriteButton = new objects.SpriteButton("bet1Button", this.globalOffsetX + 23, 386, "bet1");
             bet1.on("click", this.guiClicked, this);
             stage.addChild(bet1);
@@ -110,6 +122,7 @@
             spin.on("click", this.guiClicked, this);
             stage.addChild(spin);
 
+            //BAR
             var bar: objects.GameObject = new objects.GameObject("bet_line", this.globalOffsetX + 61, 225);
             stage.addChild(bar);
 

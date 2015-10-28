@@ -16,7 +16,16 @@ var states;
             this.currentBet = 0;
             this.checkWinning = false;
         }
+        /*
+            Gui build order:
+                Rollers
+                Background
+                Labels
+                Buttons
+                Bar
+        */
         Play.prototype.start = function () {
+            //ROLLERS
             this.tile1ImageRow = this.createImageArray();
             this.tile2ImageRow = this.createImageArray();
             this.tile3ImageRow = this.createImageArray();
@@ -37,10 +46,12 @@ var states;
             stage.addChild(tile1Container);
             stage.addChild(tile2Container);
             stage.addChild(tile3Container);
+            //BACKGROUND
             this.background = new createjs.Bitmap("../../assets/graphics/background.png");
             this.background.setBounds(0, 0, 375, 480);
             this.background.x = this.globalOffsetX;
             stage.addChild(this.background);
+            //LABELS
             this.currentMoney = 1000;
             this.lblMoney = new objects.Label(this.currentMoney.toString(), "24px Consolas", "#00ff00", this.globalOffsetX + 46, 335, false);
             stage.addChild(this.lblMoney);
@@ -59,6 +70,7 @@ var states;
             stage.addChild(this.quitButton);
             this.quitLabel = new objects.Label("Quit", "18px Consolas", "#FFF", 40, 120, true);
             stage.addChild(this.quitLabel);
+            //BUTTONS
             var bet1 = new objects.SpriteButton("bet1Button", this.globalOffsetX + 23, 386, "bet1");
             bet1.on("click", this.guiClicked, this);
             stage.addChild(bet1);
@@ -74,6 +86,7 @@ var states;
             var spin = new objects.SpriteButton("spinButton", this.globalOffsetX + 289, 386, "spin");
             spin.on("click", this.guiClicked, this);
             stage.addChild(spin);
+            //BAR
             var bar = new objects.GameObject("bet_line", this.globalOffsetX + 61, 225);
             stage.addChild(bar);
             this.currentJackpot = 5000;
